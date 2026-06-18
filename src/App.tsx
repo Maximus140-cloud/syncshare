@@ -24,7 +24,7 @@ function App() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [downloadLinks, setDownloadLinks] = useState<{ [key: string]: string } | null>(null);
-  const [tapCount, setTapCount] = useState(0);
+  const tapCountRef = useRef(0);
   const [secretUnlocked, setSecretUnlocked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -107,7 +107,7 @@ function App() {
     const filename = `${myUserId}-${Date.now()}.${ext}`;
 
     try {
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('videos')
         .upload(filename, file, {
           cacheControl: '3600',
@@ -138,13 +138,10 @@ function App() {
   };
 
   const handleTitleClick = () => {
-    setTapCount(prev => {
-      const next = prev + 1;
-      if (next >= 5) {
-        setSecretUnlocked(true);
-      }
-      return next;
-    });
+    tapCountRef.current += 1;
+    if (tapCountRef.current >= 5) {
+      setSecretUnlocked(true);
+    }
   };
 
   if (roomFull) {
